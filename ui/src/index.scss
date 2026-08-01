@@ -1,0 +1,112 @@
+@use 'core.scss';
+@import 'reset.css';
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+
+.google-sans-flex-500 {
+  font-family: "Google Sans Flex", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "wdth" 100,
+    "GRAD" 0,
+    "ROND" 0;
+}
+
+.tilt-neon-400 {
+  font-family: "Tilt Neon", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "XROT" 0,
+    "YROT" 0;
+}
+
+// ============================================================
+// BASE COMPONENTS — minimal, border-first, no shadows except overlays
+// ============================================================
+
+body {
+  background: core.$color-bg;
+  color: core.$color-text-primary;
+  font-size: core.$font-size-base;
+  line-height: 1.5;
+}
+
+// ---- Button ----
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: core.$space-2;
+  padding: core.$space-2 core.$space-4;
+  border-radius: core.$radius;
+  border: 1px solid transparent;
+  font-size: core.$font-size-sm;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  &:focus-visible {
+    outline: 2px solid core.$color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.btn-primary {
+  background: core.$color-primary;
+  color: white;
+
+  &:hover  { background: core.$color-primary-hover; }
+  &:active { background: core.$color-primary-active; }
+}
+
+.btn-secondary {
+  background: core.$color-surface;
+  border-color: core.$color-border;
+  color: core.$color-text-primary;
+
+  &:hover { border-color: core.$neutral-300; }
+}
+
+// ---- Input ----
+.input {
+  width: 100%;
+  padding: core.$space-2 core.$space-3;
+  border-radius: core.$radius;
+  border: 1px solid core.$color-border;
+  background: core.$color-surface;
+  color: core.$color-text-primary;
+  font-size: core.$font-size-base;
+  transition: border-color 0.15s ease;
+
+  &::placeholder { color: core.$color-text-disabled; }
+
+  &:focus {
+    outline: none;
+    border-color: core.$color-primary;
+  }
+}
+
+// ---- Card ----
+.card {
+  background: core.$color-surface;
+  border: 1px solid core.$color-border;
+  border-radius: core.$radius;
+  padding: core.$space-6;
+}
+
+// ---- Link ----
+a {
+  color: core.$color-primary;
+  text-decoration: none;
+
+  &:hover { color: core.$color-primary-hover; text-decoration: underline; }
+}

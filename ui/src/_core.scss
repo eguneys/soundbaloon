@@ -1,0 +1,80 @@
+// ============================================================
+// MINIMAL DESIGN TOKENS
+// Two color scales (neutral + accent), 10 steps each,
+// built by mixing toward white/black — not linear lighten/darken.
+// ============================================================
+
+@use "sass:color";
+@use "sass:math";
+
+// ---- BASE COLORS (change these two lines to retheme everything) ----
+$neutral-base: #1a1a1a; // near-black, warm neutral
+$accent-base:  #dc9e89; // muted terracotta accent
+
+// ---- HELPER: mix toward white (positive) or black (negative) ----
+@function shade($color, $amount) {
+  @if $amount > 0 {
+    @return color.mix(white, $color, $amount);
+  } @else {
+    @return color.mix(black, $color, math.abs($amount));
+  }
+}
+
+// ---- NEUTRAL SCALE ----
+$neutral-50:  shade($neutral-base, 97%); // page background
+$neutral-100: shade($neutral-base, 90%); // subtle surface
+$neutral-200: shade($neutral-base, 78%); // borders/dividers
+$neutral-300: shade($neutral-base, 62%); // disabled text/icons
+$neutral-400: shade($neutral-base, 45%); // placeholder text
+$neutral-500: shade($neutral-base, 20%); // secondary text
+$neutral-600: $neutral-base;             // base
+$neutral-700: shade($neutral-base, -15%);
+$neutral-800: shade($neutral-base, -30%);
+$neutral-900: shade($neutral-base, -45%); // primary text/near-black
+
+// ---- ACCENT SCALE ----
+$accent-50:  shade($accent-base, 92%); // tint backgrounds (badges, alerts)
+$accent-100: shade($accent-base, 80%);
+$accent-200: shade($accent-base, 65%);
+$accent-300: shade($accent-base, 48%);
+$accent-400: shade($accent-base, 25%);
+$accent-500: $accent-base;             // base / primary buttons & links
+$accent-600: shade($accent-base, -12%); // hover
+$accent-700: shade($accent-base, -25%); // active/pressed
+$accent-800: shade($accent-base, -38%);
+$accent-900: shade($accent-base, -50%);
+
+// ---- SEMANTIC ALIASES (use these in components, not raw scale steps) ----
+$color-bg:            $neutral-50;
+$color-surface:       white;
+$color-border:        $neutral-200;
+$color-text-primary:   $neutral-900;
+$color-text-secondary: $neutral-500;
+$color-text-disabled:  $neutral-300;
+
+$color-primary:       $accent-500;
+$color-primary-hover: $accent-600;
+$color-primary-active:$accent-700;
+$color-primary-tint:  $accent-50;
+
+// ---- SINGLE SPACING SCALE (4px base, multiples only) ----
+$space-0: 2px;
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-6: 24px;
+$space-8: 32px;
+$space-12: 48px;
+$space-16: 64px;
+
+// ---- SINGLE RADIUS VALUE — used everywhere, no exceptions ----
+$radius: 8px;
+
+// ---- TYPE SCALE (ratio ~1.25) ----
+$font-size-sm:   0.875rem; // 14px — captions, secondary text
+$font-size-base: 1rem;     // 16px — body
+$font-size-lg:   1.25rem;  // 20px — subheadings
+$font-size-xl:   1.5625rem; // ~25px — section headings
+$font-size-2xl:  1.953rem;  // ~31px — page headings
+
