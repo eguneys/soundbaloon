@@ -45,8 +45,7 @@ export default async function initWorklet() {
         }
     })
 
-    function playMusic() {
-        let score = new Float32Array([62, 0, 0.6])
+    function playMusic(score: Float32Array) {
         bypassNode.port.postMessage({ playMusic: score })
     }
 

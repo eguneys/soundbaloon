@@ -1,7 +1,117 @@
+@use 'core.scss';
+
 .main-wrap {
-    .main-osci {
-        display: flex;
-        width: 320px;
-        height: 180px;
+
+    main {
+        display: grid;
+        grid-template-areas: 'topbar topbar'
+        'tracker pattern'
+        'tracker osci';
+
+        row-gap: core.$space-4;
+        gap: core.$space-4;
+    }
+
+    .top-bar {
+        grid-area: topbar;
+    }
+
+    .pattern-wrap {
+        grid-area: pattern;
+    }
+
+    .tracker-wrap {
+        grid-area: tracker;
+    }
+
+    main {
+
+        .top-bar {
+            display: flex;
+            gap: core.$space-4;
+        }
+
+        .main-osci {
+            display: flex;
+            width: 320px;
+            height: 180px;
+        }
+
+
+        .tracker {
+            .list {
+                height: 80vh;
+                overflow-y: scroll;
+            }
+        }
+
+        .pattern {
+            .list {
+                height: 40vh;
+                overflow-y: scroll;
+            }
+        }
+
+        .tracker {
+            .tracker-header {
+                display: flex;
+                justify-content: space-between;
+                margin-right: core.$space-4;
+                .header-info {
+                    flex: 1;
+                    text-align: center;
+                }
+            }
+            .tracker-row {
+                display: flex;
+                align-items: center;
+                .index {
+                    text-align: right;
+                    width: 2em;
+                    padding: 0 core.$space-2;
+                    color: core.$color-text-secondary;
+                }
+                &.playing {
+                    background: core.$accent-500;
+                }
+
+
+            }
+            .tracker-note {
+                flex: 1;
+                display: flex;
+                border-bottom: 1px solid core.$color-border;
+                cursor: pointer;
+                -webkit-user-select: none;
+                user-select: none;
+
+                .note-wrap {
+                    padding: core.$space-2;
+                    flex:1;
+                    display: flex;
+                    justify-content: space-between;
+
+                    
+                &:hover {
+                    background: core.$color-primary-hover;
+                }
+
+
+
+                &.active {
+                        animation: flash .8s ease-in-out infinite;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@keyframes flash {
+    50%, 60% {
+    background: core.$color-primary-tint;;
+    }
+    0%, 100% {
+       background: core.$color-primary-active;
     }
 }

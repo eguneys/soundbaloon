@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@solid-primitives/memo": "^1.5.1",
+    "@solid-primitives/storage": "^4.4.0",
     "solid-js": "^1.9.14"
   },
   "devDependencies": {

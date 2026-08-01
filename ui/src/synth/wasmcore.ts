@@ -67,6 +67,9 @@ export class WasmCore {
         let maxEnd = 0
 
         for (let i = 0; i < score.length; i += 3) {
+            if (score[i] === 0) {
+                continue
+            }
             const freq = midiToHz(score[i])
             const start = score[i + 1]
             const dur = score[i + 2]
