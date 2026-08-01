@@ -1,14 +1,18 @@
+import { WasmCore } from "./wasmcore"
 import { WasmSynth } from "./wasmsynth"
 
 class Bypass extends AudioWorkletProcessor {
 
-    synth: WasmSynth
+    synth!: WasmSynth
     createdAt: number
 
     constructor() {
         super()
 
-        this.synth = new WasmSynth()
+        WasmCore.init(sampleRate).then(core => {
+            this.synth = new WasmSynth(core, sampleRate)
+            this.port.postMessage('ready')
+        })
 
         this.port.onmessage = (event) => {
             if (event.data.playMusic) {
@@ -18,7 +22,6 @@ class Bypass extends AudioWorkletProcessor {
 
         this.createdAt = currentTime
 
-        this.port.postMessage('ready')
     }
 
     static get parameterDescriptors() {
@@ -29,20 +32,9 @@ class Bypass extends AudioWorkletProcessor {
     }
 
     process(_inputs: Float32Array[][], outputs: Float32Array[][], _parameters: Record<string, Float32Array>) {
-
-        let output = outputs[0]
-        const channel = output[0]
-
-        //let gainValues = parameters['gain']
-
-
-        //let sampleSinceStart = (frame + i) - this.startFrame
-        //const timeSinceStart = sampleSinceStart / sampleRate
-        //let sampleI = this.synth.process(i)
-
+        const channel = outputs[0][0]
         for (let i = 0; i < channel.length; ++i) {
-            //channel[i] = sample[i] * gainValues[i]
-
+            channel[i] = this.synth.process(currentFrame + i)
         }
         return true
     }

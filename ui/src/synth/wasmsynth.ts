@@ -1,17 +1,31 @@
+import type { Score, WasmCore } from "./wasmcore"
+
+
 export class WasmSynth {
+    startFrame = 0
 
-    playMusic(_a: any, _startTime: number) {
+    constructor(readonly wasm: WasmCore, readonly sampleRate: number) { }
 
+    playMusic(score: Score, startTime: number) {
+        this.startFrame = Math.round(startTime * this.sampleRate)
+        this.wasm.load_score(score)
     }
 
-    createAudioBuffer = (cx: AudioContext, sampleRate = 44100) => {
-        let length = 100
-        let buffer = cx.createBuffer(1, length, sampleRate)
+    process(frame: number) {
+        const sinceStart = frame - this.startFrame
+        if (sinceStart < 0) return 0
+        return this.wasm.next_sample(sinceStart)
+    }
 
+    createAudioBuffer = (cx: AudioContext, score: Score) => {
+        this.playMusic(score, 0)
+        let length = Math.round(this.wasm.getDurationSeconds() * this.sampleRate)
+        let buffer = cx.createBuffer(1, length, this.sampleRate)
         let data = buffer.getChannelData(0)
 
-        for (let j = 0; j < length; j++) {
-            data[j] = sample[j]
+
+        for (let n = 0; n < length; n++) {
+            data[n] = this.process(n)
         }
         return buffer
     }

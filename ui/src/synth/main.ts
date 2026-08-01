@@ -71,7 +71,7 @@ export function Init_canvas(container: HTMLElement, set_viewport: (top: number, 
     return cx
 }
 
-export async function app(el: HTMLElement) {
+export async function app(el: HTMLElement, workletCtx: { getWindow: () => Float32Array }) {
 
     let scene = play
 
@@ -84,7 +84,7 @@ export async function app(el: HTMLElement) {
 
     await scene._load()
 
-    scene._set_ctx(cx)
+    scene._set_ctx(cx, workletCtx)
 
     scene._init()
 
