@@ -17,7 +17,7 @@ function App() {
 
 function Main() {
 
-  let [{ tracker, }, { tracker_actions: { delete_backspace_tracker_note, delete_tracker_note, set_playing_row, set_tracker_note, set_tracker_cursor, insert_tracker_note, set_tracker_note_octaveup, set_tracker_note_octavedown } }] = useState()
+  let [{ tracker, }, { tracker_actions: { delete_backspace_tracker_note, delete_tracker_note, set_playing_row, set_tracker_note, set_tracker_cursor, insert_tracker_note, set_tracker_note_octaveup, set_tracker_note_octavedown, set_tracker_note_down, set_tracker_note_up } }] = useState()
 
   let workletCtx = {
     playMusic: (_score: Float32Array) => { },
@@ -48,11 +48,21 @@ function Main() {
           workletCtx.playMusic(tracker.playMusicScore)
         }
       }
+      if (e.key === 'A' || e.key === 'a') {
+        if (e.ctrlKey) {
+          e.preventDefault()
+
+        }
+      }
       if (e.key === 'Backspace') {
         delete_backspace_tracker_note()
       }
       if (e.key === 'Delete') {
         delete_tracker_note()
+      }
+      if (e.key === 'End') {
+        delete_tracker_note()
+        set_tracker_cursor(tracker.tracker_cursor.row + 1, tracker.tracker_cursor.channel)
       }
       if (e.key === 'Insert') {
         insert_tracker_note()
@@ -65,6 +75,13 @@ function Main() {
         e.preventDefault()
         set_tracker_note_octavedown()
       }
+      if (e.key === '+') {
+        e.preventDefault()
+        set_tracker_note_up()
+      }
+      if (e.key === '-') {
+        set_tracker_note_down()
+      }
       const note = parseNote(e.key)
       if (note !== undefined) {
         set_tracker_note(note)
@@ -74,15 +91,19 @@ function Main() {
 
       if (e.key === 'ArrowUp') {
         set_tracker_cursor(Math.max(0, tracker.tracker_cursor.row - 1), tracker.tracker_cursor.channel)
+        e.preventDefault()
       }
       if (e.key === 'ArrowDown') {
         set_tracker_cursor(Math.min(63, tracker.tracker_cursor.row + 1), tracker.tracker_cursor.channel)
+        e.preventDefault()
       }
       if (e.key === 'ArrowLeft') {
         set_tracker_cursor(tracker.tracker_cursor.row, Math.max(0, tracker.tracker_cursor.channel - 1))
+        e.preventDefault()
       }
       if (e.key === 'ArrowRight') {
         set_tracker_cursor(tracker.tracker_cursor.row, Math.min(3, tracker.tracker_cursor.channel + 1))
+        e.preventDefault()
       }
     })
     document.addEventListener('click', initWorkletContext)
@@ -124,7 +145,7 @@ function Tracker() {
       <div class='list'>
         <For each={list}>{(_item, i) =>
 
-          <div class='tracker-row' classList={{ 'playing': useState()[0].tracker.playing_row === i() }}>
+          <div class='tracker-row' classList={{ 'playing': useState()[0].tracker.playing_row === i(), 'beat': i() % 4 === 0 }}>
             <div class='index'>{i() + 1}</div>
             <div class='tracker-note'>
               <For each={Array(4).fill(0)}>{(_, j) =>

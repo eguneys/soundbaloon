@@ -71,9 +71,17 @@
                     padding: 0 core.$space-2;
                     color: core.$color-text-secondary;
                 }
-                &.playing {
-                    background: core.$accent-500;
+
+                background: core.$neutral-50;
+
+                &.beat {
+                    background: core.$neutral-200;
                 }
+
+                &.playing {
+                    background: core.$accent-600;
+                }
+
 
 
             }
@@ -91,6 +99,10 @@
                     display: flex;
                     justify-content: space-between;
 
+                    .note {
+                        width: 4ch;
+                    }
+
                     
                 &:hover {
                     background: core.$color-primary-hover;
@@ -102,6 +114,7 @@
                         animation: flash .8s ease-in-out infinite;
                     }
                 }
+
             }
         }
     }

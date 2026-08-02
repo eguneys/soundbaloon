@@ -18,6 +18,8 @@ export type Actions = {
     insert_tracker_note(): void
     set_tracker_note_octaveup(): void
     set_tracker_note_octavedown(): void
+    set_tracker_note_up(): void
+    set_tracker_note_down(): void
 }
 
 export type Store = [State, Actions]
@@ -116,6 +118,14 @@ export function make_tracker(): Store {
         set_tracker_note_octavedown() {
             let cursor = state.tracker_cursor
             set_store('tracker', 0, cursor.row, _ => midiNoteOctaveDown(_))
+        },
+        set_tracker_note_up() {
+            let cursor = state.tracker_cursor
+            set_store('tracker', 0, cursor.row, _ => midiNoteUp(_))
+        },
+        set_tracker_note_down() {
+            let cursor = state.tracker_cursor
+            set_store('tracker', 0, cursor.row, _ => midiNoteDown(_))
         }
 
     }
@@ -128,4 +138,12 @@ function midiNoteOctaveUp(midi: number) {
 
 function midiNoteOctaveDown(midi: number) {
     return midi - 12
+}
+
+function midiNoteUp(midi: number) {
+    return midi + 1
+}
+
+function midiNoteDown(midi: number) {
+    return midi - 1
 }
