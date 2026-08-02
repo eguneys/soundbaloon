@@ -3,6 +3,7 @@ import { app as oscii } from './synth/main'
 import './App.scss'
 import initWorklet from "./synth/worklet";
 import { TrackerProvider, useState } from "./state/State";
+import { encodeMidiToChar } from "./synth/wasmcore";
 
 function App() {
 
@@ -20,7 +21,7 @@ function Main() {
   let [{ tracker, }, { tracker_actions: { set_bpm, delete_backspace_tracker_note, delete_tracker_note, set_playing_row, set_tracker_note, set_tracker_cursor, insert_tracker_note, set_tracker_note_octaveup, set_tracker_note_octavedown, set_tracker_note_down, set_tracker_note_up } }] = useState()
 
   let workletCtx = {
-    playMusic: (_score: Float32Array) => { },
+    playMusic: (_score: string, _dur: number) => { },
     getWindow: () => new Float32Array(0)
   }
 
@@ -41,11 +42,11 @@ function Main() {
       if (e.code === 'Space') {
         e.preventDefault()
         if (tracker.playing_row !== undefined) {
-          workletCtx.playMusic(new Float32Array([]))
+          workletCtx.playMusic('', 0)
           set_playing_row(undefined)
         } else {
           set_playing_row(0)
-          workletCtx.playMusic(tracker.playMusicScore)
+          workletCtx.playMusic(tracker.playMusicScore, tracker.playMusicDuration)
         }
       }
       if (e.key === 'A' || e.key === 'a') {
@@ -86,7 +87,7 @@ function Main() {
       if (note !== undefined) {
         set_tracker_note(note)
         set_tracker_cursor(tracker.tracker_cursor.row + 1, tracker.tracker_cursor.channel)
-        workletCtx.playMusic(new Float32Array([note, 0, 0.5]))
+        workletCtx.playMusic(encodeMidiToChar(note), tracker.playMusicDuration)
       }
 
       if (e.key === 'ArrowUp') {
@@ -112,15 +113,23 @@ function Main() {
     })
   })
 
+  const openExportDialog = () => {
+
+    let code = tracker.exportCode
+    navigator.clipboard.writeText(code)
+  }
+
   return (<>
     <main>
       <div class='top-bar'>
         <h2>Sound Bubble Music Tracker</h2>
-        <button onClick={() => workletCtx.playMusic(tracker.playMusicScore)}>Play (Space)</button>
+        <button onClick={() => workletCtx.playMusic(tracker.playMusicScore, tracker.playMusicDuration)}>Play (Space)</button>
         <div class='input-group'>
           <input type="number" min="60" max="300" step="10" value={tracker.bpm} onChange={(e) => set_bpm(parseInt(e.target.value))}></input>
           <label>BPM</label>
         </div>
+
+        <button onClick={() => openExportDialog()}>Export JS</button>
       </div>
       <div class='pattern-wrap'>
         <Pattern />
@@ -198,6 +207,7 @@ function TrackerNote(props: { row: number, channel: number }) {
 }
 
 function midiToAsciNote(midi: number | undefined) {
+  if (midi === null) return '-'
   if (midi === undefined) return '-'
   if (midi === 0) return '-'
   const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -223,7 +233,7 @@ function Pattern() {
 
 
 
-function Osci(props: { workletCtx: { playMusic: (score: Float32Array) => void, getWindow: () => Float32Array } }) {
+function Osci(props: { workletCtx: { playMusic: (score: string, duration: number) => void, getWindow: () => Float32Array } }) {
 
   let osciRef!: HTMLDivElement;
 

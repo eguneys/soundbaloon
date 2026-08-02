@@ -16,7 +16,7 @@ class Bypass extends AudioWorkletProcessor {
 
         this.port.onmessage = (event) => {
             if (event.data.playMusic) {
-                this.synth.playMusic(event.data.playMusic, currentTime)
+                this.synth.playMusic(event.data.playMusic.score, event.data.playMusic.dur, currentTime)
             }
         }
 

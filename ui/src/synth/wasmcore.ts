@@ -1,10 +1,26 @@
-export type Score = Float32Array
+export type Score = string
+
+export const NullMidiChar = ' '
+const MIDI_MIN = 24; // C2
+const CHAR_BASE = 33; // '!'
+const MIDI_MAX = 90
+
+export function decodeCharToMidi(char: string) {
+    return char.charCodeAt(0) - CHAR_BASE + MIDI_MIN;
+}
+
+export function encodeMidiToChar(midi: number) {
+    return String.fromCharCode(midi - MIDI_MIN + CHAR_BASE);
+}
+
+export function isInvalidMidiRange(midi?: number) {
+    return !midi || midi < MIDI_MIN || midi > MIDI_MIN + MIDI_MAX
+}
 
 interface Note {
     freq: number
     startSample: number
     endSample: number
-    duty?: number
 }
 
 
@@ -62,22 +78,23 @@ export class WasmCore {
 
     constructor(private sampleRate: number) { }
 
-    load_score(score: Float32Array) {
+    load_score(score: string, dur: number) {
         this.notes = []
         let maxEnd = 0
 
-        for (let i = 0; i < score.length; i += 3) {
-            if (score[i] === 0) {
-                continue
+        let start: number = 0
+        for (let i = 0; i < score.length; i++) {
+            if (score[i] !== NullMidiChar) {
+                let midi = decodeCharToMidi(score[i])
+                const freq = midiToHz(midi)
+                const startSample = Math.round(start * this.sampleRate)
+                const endSample = Math.round((start + dur) * this.sampleRate)
+                this.notes.push({ freq, startSample, endSample })
             }
-            const freq = midiToHz(score[i])
-            const start = score[i + 1]
-            const dur = score[i + 2]
-            const startSample = Math.round(start * this.sampleRate)
-            const endSample = Math.round((start + dur) * this.sampleRate)
-            this.notes.push({ freq, startSample, endSample, duty: 0.7 })
             maxEnd = Math.max(maxEnd, start + dur)
+            start += dur
         }
+        console.log(this.notes, score)
         this.durationSeconds = maxEnd
     }
 
@@ -90,9 +107,9 @@ export class WasmCore {
             if (sinceStart >= note.startSample && sinceStart < note.endSample) {
                 const t = sinceStart / this.sampleRate;
 
-                const duty = note.duty ?? 0.5;
+                const duty = 0.3;
 
-                const detuneCents = 8
+                const detuneCents = 4
                 const detuneRatio = Math.pow(2, detuneCents / 1200)
 
                 const voice1 = pulseAt(note.freq, t, duty)
@@ -102,20 +119,18 @@ export class WasmCore {
                 let voice = (voice1 + voice2 + voice3) / 3
 
                 const sub = pulseAt(note.freq / 2, t, 0.5) * 0.4
-                voice = voice * 0.7 + sub * 0.3
-
-                voice += pseudoNoise(sinceStart) * 0.05
+                voice = voice * 0.7 + sub * 0.2
 
                 const sinceNoteStart = sinceStart - note.startSample
 
-                const envPeriod = 4
+                const envPeriod = 8
                 const envLoop = false
                 const level = envelopeLevel(sinceNoteStart, this.sampleRate, envPeriod, envLoop)
                 voice *= level / 15
 
-                let drive = 0.3
+                let drive = 0.01
                 voice = distort(voice, drive)
-                let noiseMix = 0.03
+                let noiseMix = 0.001
                 voice += pseudoNoise(sinceStart) * noiseMix
 
                 sample += voice;
@@ -125,10 +140,10 @@ export class WasmCore {
 
         let out = activeCount > 0 ? sample / activeCount : 0;
 
-        let bitdepth = 2
+        let bitdepth = 4
         out = bitcrush(out, bitdepth)
 
-        return hardClip(out, 0.3)
+        return hardClip(out, 0.98)
     }
 
     static init = async (sampleRate: number) => {

@@ -6,9 +6,9 @@ export class WasmSynth {
 
     constructor(readonly wasm: WasmCore, readonly sampleRate: number) { }
 
-    playMusic(score: Score, startTime: number) {
+    playMusic(score: Score, dur: number, startTime: number) {
         this.startFrame = Math.round(startTime * this.sampleRate)
-        this.wasm.load_score(score)
+        this.wasm.load_score(score, dur)
     }
 
     process(frame: number) {
@@ -17,8 +17,8 @@ export class WasmSynth {
         return this.wasm.next_sample(sinceStart)
     }
 
-    createAudioBuffer = (cx: AudioContext, score: Score) => {
-        this.playMusic(score, 0)
+    createAudioBuffer = (cx: AudioContext, score: Score, dur: number) => {
+        this.playMusic(score, dur, 0)
         let length = Math.round(this.wasm.getDurationSeconds() * this.sampleRate)
         let buffer = cx.createBuffer(1, length, this.sampleRate)
         let data = buffer.getChannelData(0)

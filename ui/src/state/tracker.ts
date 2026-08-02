@@ -1,12 +1,15 @@
 import { makePersisted } from "@solid-primitives/storage"
 import { createStore, type StoreReturn } from "solid-js/store"
+import { encodeMidiToChar, isInvalidMidiRange, NullMidiChar } from "../synth/wasmcore"
 
 export type State = {
     playing_row: number | undefined,
     tracker: number[][]
     tracker_cursor: RowChannel
-    playMusicScore: Float32Array
+    playMusicScore: string
+    playMusicDuration: number
     bpm: number
+    exportCode: string
 }
 
 export type Actions = {
@@ -43,7 +46,18 @@ export function make_tracker(): Store {
 
     const durationSeconds = () => 60 / store.bpm / 4
 
+    const exportTSCode = (songName: string) => {
+        let score = state.playMusicScore
+        return `
+//Auto-Generated audio-play-code in Typescript. All rights reserved.
+export const song_${songName} = "${score}"
+`
+    }
+
     let state = {
+        get exportCode() {
+            return exportTSCode('hello')
+        },
         get bpm() {
             return store.bpm
         },
@@ -57,22 +71,29 @@ export function make_tracker(): Store {
             return store.tracker_cursor
         },
         get playMusicScore() {
-            let nextNoteTime = 0
-            let buffer = []
+            let result = ''
+
             for (let i = 0; i < 64; i++) {
-                buffer[i * 3] = store.tracker[0][i] ?? 0
-                buffer[i * 3 + 1] = nextNoteTime
-                buffer[i * 3 + 2] = durationSeconds()
-                nextNoteTime += durationSeconds()
+
+                let _ = store.tracker[0][i]
+                if (isInvalidMidiRange(_)) {
+
+                    result += NullMidiChar
+                } else {
+                    result += encodeMidiToChar(_)
+                }
             }
-            return new Float32Array(buffer)
+            return result
+        },
+        get playMusicDuration() {
+            return durationSeconds()
         }
     }
 
     let stepPlaybackTimer: number | undefined
     function stepPlayback() {
         set_store('playing_row', store.playing_row! + 1)
-        stepPlaybackTimer = setTimeout(stepPlayback, durationSeconds() * 1000)
+        stepPlaybackTimer = setTimeout(stepPlayback, durationSeconds() * 980)
     }
 
     let actions = {
@@ -83,8 +104,9 @@ export function make_tracker(): Store {
             if (v === undefined) {
                 clearTimeout(stepPlaybackTimer)
                 stepPlaybackTimer = undefined
+                set_store('tracker_cursor', 'row', store.playing_row!)
             } else {
-                stepPlaybackTimer = setTimeout(stepPlayback, durationSeconds() * 1000)
+                stepPlaybackTimer = setTimeout(stepPlayback, durationSeconds() * 980)
             }
             set_store('playing_row', v)
         },

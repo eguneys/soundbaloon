@@ -45,8 +45,8 @@ export default async function initWorklet() {
         }
     })
 
-    function playMusic(score: Float32Array) {
-        bypassNode.port.postMessage({ playMusic: score })
+    function playMusic(score: string, dur: number) {
+        bypassNode.port.postMessage({ playMusic: { score, dur } })
     }
 
     function findTrigger(buffer: Float32Array, start: number, size: number) {
