@@ -17,7 +17,7 @@ function App() {
 
 function Main() {
 
-  let [{ tracker, }, { tracker_actions: { delete_backspace_tracker_note, delete_tracker_note, set_playing_row, set_tracker_note, set_tracker_cursor, insert_tracker_note, set_tracker_note_octaveup, set_tracker_note_octavedown, set_tracker_note_down, set_tracker_note_up } }] = useState()
+  let [{ tracker, }, { tracker_actions: { set_bpm, delete_backspace_tracker_note, delete_tracker_note, set_playing_row, set_tracker_note, set_tracker_cursor, insert_tracker_note, set_tracker_note_octaveup, set_tracker_note_octavedown, set_tracker_note_down, set_tracker_note_up } }] = useState()
 
   let workletCtx = {
     playMusic: (_score: Float32Array) => { },
@@ -117,6 +117,10 @@ function Main() {
       <div class='top-bar'>
         <h2>Sound Bubble Music Tracker</h2>
         <button onClick={() => workletCtx.playMusic(tracker.playMusicScore)}>Play (Space)</button>
+        <div class='input-group'>
+          <input type="number" min="60" max="300" step="10" value={tracker.bpm} onChange={(e) => set_bpm(parseInt(e.target.value))}></input>
+          <label>BPM</label>
+        </div>
       </div>
       <div class='pattern-wrap'>
         <Pattern />
@@ -127,7 +131,7 @@ function Main() {
       <div class='tracker-wrap'>
         <Tracker />
       </div>
-    </main>
+    </main >
   </>
   )
 }

@@ -10,6 +10,7 @@ export type State = {
 }
 
 export type Actions = {
+    set_bpm(bpm: number): void
     set_playing_row(row: number | undefined): void
     set_tracker_cursor(x: number, y: number): void
     set_tracker_note(note: number): void
@@ -37,7 +38,7 @@ export function make_tracker(): Store {
         playing_row: undefined,
         tracker: [[], [], [], []],
         tracker_cursor: { row: 0, channel: 0 },
-        bpm: 90
+        bpm: 300
     }), { name: 'tracker-v1' })
 
     const durationSeconds = () => 60 / store.bpm / 4
@@ -75,6 +76,9 @@ export function make_tracker(): Store {
     }
 
     let actions = {
+        set_bpm(bpm: number) {
+            set_store('bpm', bpm)
+        },
         set_playing_row(v: number | undefined) {
             if (v === undefined) {
                 clearTimeout(stepPlaybackTimer)

@@ -110,3 +110,26 @@ a {
 
   &:hover { color: core.$color-primary-hover; text-decoration: underline; }
 }
+
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: core.$neutral-100;
+  border-radius: core.$space-3;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: core.$neutral-200;
+  border-radius: core.$space-3;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: core.$neutral-200;
+}
